@@ -1,10 +1,11 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .models import Product, Order, OrderDetails
-from rest_framework.decorators import api_view
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -61,28 +62,39 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    data = request.data
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
     order, is_created = Order.objects.update_or_create(
-        firstname=data['firstname'],
-        lastname=data['lastname'],
-        phone_number=data['phonenumber'],
-        address=data['address']
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
     )
 
-    product = Product.objects.filter(id=data['products'][0]['product'])
-    print(product[0].price)
-    for product_item in data['products']:
-        order_details, is_created = OrderDetails.objects.update_or_create(
-            product=Product.objects.filter(id=product_item['product'])[0],
+    print('order', is_created)
+
+    for product_item in serializer.validated_data.get('products'):
+        order_details, is_created = OrderDetails.objects.get_or_create(
+            product=product_item['product'],
             order=order,
             defaults={
                 'quantity': product_item['quantity'],
-                'product_price': Product.objects.filter(id=product_item['product'])[0].price * product_item['quantity']
+                'product_price': product_item['product'].price * product_item['quantity']
             })
+
+        print('details', is_created)
+
         if not is_created:
+            print('before', order_details.quantity)
+            print('before', order_details.product_price)
+            print('--------')
             order_details.quantity = order_details.quantity + product_item['quantity']
-            order_details.product_price = float(order_details.product_price) + float((
-                Product.objects.filter(id=product_item['product'])[0].price * product_item['quantity']
-            ))
+            print('after', order_details.quantity)
+            order_details.product_price = float(order_details.product_price) + float(
+                (product_item['product'].price * product_item['quantity']
+                 ))
+            print('after', order_details.product_price)
+            print('-----')
             order_details.save()
-    return JsonResponse({})
+    return Response(serializer.data, status.HTTP_201_CREATED)

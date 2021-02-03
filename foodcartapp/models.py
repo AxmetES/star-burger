@@ -73,7 +73,7 @@ class Order(models.Model):
     firstname = models.CharField(max_length=50, verbose_name='имя')
     lastname = models.CharField(max_length=50, verbose_name='фамилия')
     address = models.CharField(max_length=100, verbose_name='адрес')
-    phone_number = PhoneNumberField(verbose_name='номер телефона')
+    phonenumber = PhoneNumberField(verbose_name='номер телефона')
 
     def __str__(self):
         return self.firstname

@@ -120,7 +120,7 @@ class OrderDetailsAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'address', 'phone_number')
+    list_display = ('firstname', 'lastname', 'address', 'phonenumber')
     inlines = [
         DetailsInline
     ]
