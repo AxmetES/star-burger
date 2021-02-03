@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Sum
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -81,6 +82,9 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
+
+    def get_order_cost(self):
+        return Order.objects.filter(pk=self.id).aggregate(order_cost=Sum('details__product_price'))['order_cost']
 
 
 class OrderDetails(models.Model):
