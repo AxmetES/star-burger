@@ -83,18 +83,12 @@ def register_order(request):
                 'product_price': product_item['product'].price * product_item['quantity']
             })
 
-        print('details', is_created)
-
         if not is_created:
-            print('before', order_details.quantity)
-            print('before', order_details.product_price)
-            print('--------')
             order_details.quantity = order_details.quantity + product_item['quantity']
-            print('after', order_details.quantity)
+
             order_details.product_price = float(order_details.product_price) + float(
                 (product_item['product'].price * product_item['quantity']
                  ))
-            print('after', order_details.product_price)
-            print('-----')
+
             order_details.save()
     return Response(serializer.data, status.HTTP_201_CREATED)
