@@ -111,11 +111,13 @@ class ProductAdmin(admin.ModelAdmin):
 
 class DetailsInline(admin.TabularInline):
     model = OrderDetails
+    readonly_fields = ['product_price']
 
 
 @admin.register(OrderDetails)
 class OrderDetailsAdmin(admin.ModelAdmin):
-    list_display = ('product', 'quantity', 'order', 'product_price')
+    list_display = ('product', 'quantity', 'order')
+    readonly_fields = ['product_price', ]
 
 
 @admin.register(Order)

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -91,7 +93,8 @@ class OrderDetails(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='products', verbose_name='продукт')
     quantity = models.IntegerField('количество', validators=[MinValueValidator(1), MaxValueValidator(100)])
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='details', verbose_name='заказ')
-    product_price = models.FloatField('сумма цен продукта', null=True)
+    product_price = models.DecimalField('сумма цен продукта', null=True, max_digits=5, decimal_places=2,
+                                        validators=[MinValueValidator(Decimal('0.01'))])
 
     def __str__(self):
         return str(self.order)
