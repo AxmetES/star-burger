@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework import status
@@ -60,6 +61,7 @@ def product_list_api(request):
     })
 
 
+@transaction.atomic()
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
@@ -71,8 +73,6 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address']
     )
-
-    print('order', is_created)
 
     for product_item in serializer.validated_data.get('products'):
         order_details, is_created = OrderDetails.objects.get_or_create(
