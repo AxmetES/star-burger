@@ -3,15 +3,15 @@
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
 {% block content %}
-  <center>
-    <h2>Необработанные заказы</h2>
-  </center>
+<center>
+  <h2>Необработанные заказы</h2>
+</center>
 
-  <hr/>
-  <br/>
-  <br/>
-  <div class="container">
-   <table class="table table-responsive">
+<hr/>
+<br/>
+<br/>
+<div class="container">
+  <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
       <th>Стоимость заказа</th>
@@ -21,14 +21,17 @@
     </tr>
 
     {% for item in order_items %}
-      <tr>
-        <td>{{item.id}}</td>
-        <td>{{item.get_order_cost}}</td>
-        <td>{{item.firstname}} {{item.lastname}}</td>
-        <td>{{item.phonenumber}}</td>
-        <td>{{item.address}}</td>
-      </tr>
+    <tr>
+      <td>{{item.id}}</td>
+      <td>{{item.get_order_cost}}</td>
+      <td>{{item.firstname}} {{item.lastname}}</td>
+      <td>{{item.phonenumber}}</td>
+      <td>{{item.address}}</td>
+      <td><a
+        href="{% url 'admin:foodcartapp_order_change' object_id=item.id %}?next={% url 'restaurateur:view_orders' %}">Редактировать</a>
+      </td>
+    </tr>
     {% endfor %}
-   </table>
-  </div>
+  </table>
+</div>
 {% endblock %}
