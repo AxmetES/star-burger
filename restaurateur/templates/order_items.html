@@ -24,7 +24,7 @@
     {% for item in order_items %}
     <tr>
       <td>{{item.id}}</td>
-      <td>{{item.order_status}}</td>
+      <td>{{item.get_order_status_display}}</td>
       <td>{{item.get_order_cost}}</td>
       <td>{{item.firstname}} {{item.lastname}}</td>
       <td>{{item.phonenumber}}</td>

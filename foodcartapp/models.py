@@ -73,17 +73,18 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    PROCESSED = 'Processed'
-    UNPROCESSED = 'Unprocessed'
+    PROCESSED = 'PR'
+    UNPROCESSED = 'UP'
     STATUS = [
-        ('Обработанный', 'Processed'),
-        ('Необработанный', 'Unprocessed')
+        (PROCESSED, 'Обработанный'),
+        (UNPROCESSED, 'Необработанный')
     ]
     firstname = models.CharField(max_length=50, verbose_name='имя')
     lastname = models.CharField(max_length=50, verbose_name='фамилия')
     address = models.CharField(max_length=100, verbose_name='адрес')
     phonenumber = PhoneNumberField(verbose_name='номер телефона')
-    order_status = models.CharField(max_length=14, choices=STATUS, default=UNPROCESSED, verbose_name='статус заказа')
+    order_status = models.CharField(max_length=2, choices=STATUS, default=UNPROCESSED, verbose_name='статус заказа')
+    comment = models.TextField(max_length=250, verbose_name='комментарии', blank=True)
 
     def __str__(self):
         return self.firstname
