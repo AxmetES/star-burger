@@ -80,13 +80,25 @@ class Order(models.Model):
         (PROCESSED, 'Обработанный'),
         (UNPROCESSED, 'Необработанный')
     ]
+    CASH = 'CH'
+    CART = 'CR'
+    TRANSFER = 'TR'
+    CRYPTOCURRENCY = 'CC'
+    PAYMENT_METHOD = [
+        (CASH, 'Наличными'),
+        (CART, 'Банковская карта'),
+        (TRANSFER, 'Электронный перевод'),
+        (CRYPTOCURRENCY, 'Криптовалютный перевод'),
+    ]
+
     firstname = models.CharField(max_length=50, verbose_name='имя')
     lastname = models.CharField(max_length=50, verbose_name='фамилия')
     address = models.CharField(max_length=100, verbose_name='адрес')
     phonenumber = PhoneNumberField(verbose_name='номер телефона')
     order_status = models.CharField(max_length=2, choices=STATUS, default=UNPROCESSED, verbose_name='статус заказа')
+    payment_method = models.CharField(max_length=2, choices=PAYMENT_METHOD, verbose_name='способ оплаты')
     comment = models.TextField(max_length=250, verbose_name='комментарии', blank=True)
-    registrated_at = models.DateTimeField(default=timezone.now, verbose_name='время рагистрации', null=True)
+    registrated_at = models.DateTimeField(default=timezone.now, verbose_name='время рагистрации')
     called_at = models.DateTimeField(verbose_name='время звонка', null=True)
     delivered_at = models.DateTimeField(verbose_name='время доставки', null=True)
 
