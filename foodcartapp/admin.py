@@ -123,10 +123,22 @@ class OrderDetailsAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'address', 'phonenumber')
+    search_fields = ["firstname__startswith"]
+    list_filter = ['order_status']
+    list_display = ['full_name', 'address', 'phonenumber']
+    readonly_fields = ('registrated_at',)
     inlines = [
         DetailsInline
     ]
+    # fieldsets = (
+    #     (None, {
+    #         'fields': ('firstname', 'lastname', 'address', 'phonenumber', 'order_status', 'comment')
+    #     }),
+    #     (None, {
+    #         'fields': ('called_at', 'delivered_at'),
+    #         'readonly_fields': ('registrated_at',)
+    #     }),
+    # )
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)

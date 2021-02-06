@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -85,9 +86,15 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='номер телефона')
     order_status = models.CharField(max_length=2, choices=STATUS, default=UNPROCESSED, verbose_name='статус заказа')
     comment = models.TextField(max_length=250, verbose_name='комментарии', blank=True)
+    registrated_at = models.DateTimeField(default=timezone.now, verbose_name='время рагистрации', null=True)
+    called_at = models.DateTimeField(verbose_name='время звонка', null=True)
+    delivered_at = models.DateTimeField(verbose_name='время доставки', null=True)
 
-    def __str__(self):
-        return self.firstname
+    # def __str__(self):
+    #     return '{} {}'.format(self.firstname, self.lastname)
+
+    def full_name(self):
+        return '{} {}'.format(self.firstname, self.lastname)
 
     class Meta:
         verbose_name = 'заказ'
