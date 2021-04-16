@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from foodcartapp.models import Order, OrderDetails
+from foodcartapp.models import Order, OrderDetails, Place
 
 
 class OrderDetailsSerializer(ModelSerializer):
@@ -15,3 +15,9 @@ class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
         fields = ('firstname', 'lastname', 'address', 'phonenumber', 'products')
+
+
+class PlaceSerializer(ModelSerializer):
+    class Meta:
+        model = Place
+        fields = "__all__"

@@ -15,15 +15,15 @@ class Login(forms.Form):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Укажите имя пользователя'
-        })
-    )
+            })
+        )
     password = forms.CharField(
         label='Пароль', max_length=75, required=True,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'Введите пароль'
-        })
-    )
+            })
+        )
 
 
 class LoginView(View):
@@ -31,7 +31,7 @@ class LoginView(View):
         form = Login()
         return render(request, "login.html", context={
             'form': form
-        })
+            })
 
     def post(self, request):
         form = Login(request.POST)
@@ -50,7 +50,7 @@ class LoginView(View):
         return render(request, "login.html", context={
             'form': form,
             'ivalid': True,
-        })
+            })
 
 
 class LogoutView(auth_views.LogoutView):
@@ -72,24 +72,24 @@ def view_products(request):
         availability = {
             **default_availability,
             **{item.restaurant_id: item.availability for item in product.menu_items.all()},
-        }
+            }
         orderer_availability = [availability[restaurant.id] for restaurant in restaurants]
 
         products_with_restaurants.append(
             (product, orderer_availability)
-        )
+            )
 
     return render(request, template_name="products_list.html", context={
         'products_with_restaurants': products_with_restaurants,
         'restaurants': restaurants,
-    })
+        })
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_restaurants(request):
     return render(request, template_name="restaurants_list.html", context={
         'restaurants': Restaurant.objects.all(),
-    })
+        })
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -97,4 +97,4 @@ def view_orders(request):
     order_items = Order.objects.all().filter(order_status='UP').order_by('-id')
     return render(request, template_name='order_items.html', context={
         'order_items': order_items
-    })
+        })

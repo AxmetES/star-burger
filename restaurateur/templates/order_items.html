@@ -15,18 +15,26 @@
     <tr>
       <th>ID заказа</th>
       <th>Статус заказа</th>
+      <th>Способ оплаты</th>
       <th>Стоимость заказа</th>
+      <th>Ресторан</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Редактировать в админ</th>
     </tr>
-
     {% for item in order_items %}
     <tr>
       <td>{{item.id}}</td>
       <td>{{item.get_order_status_display}}</td>
       <td>{{item.get_payment_method_display}}</td>
       <td>{{item.get_order_cost}}</td>
+      <td>
+        {% for rest in item.get_rest_rang %}
+          {{rest}}
+          <br>
+        {% endfor %}
+      </td>
       <td>{{item.firstname}} {{item.lastname}}</td>
       <td>{{item.phonenumber}}</td>
       <td>{{item.address}}</td>

@@ -1,12 +1,18 @@
+import requests
 from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
+from environs import Env
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Product, Order, OrderDetails
+from .fetch_coordinates import fetch_coordinates
+from .models import Product, Order, OrderDetails, Place
 from .serializers import OrderSerializer
+
+env = Env()
+env.read_env()
 
 
 def banners_list_api(request):
@@ -16,21 +22,21 @@ def banners_list_api(request):
             'title': 'Burger',
             'src': static('burger.jpg'),
             'text': 'Tasty Burger at your door step',
-        },
+            },
         {
             'title': 'Spices',
             'src': static('food.jpg'),
             'text': 'All Cuisines',
-        },
+            },
         {
             'title': 'New York',
             'src': static('tasty.jpg'),
             'text': 'Food is incomplete without a tasty dessert',
-        }
-    ], safe=False, json_dumps_params={
+            }
+        ], safe=False, json_dumps_params={
         'ensure_ascii': False,
         'indent': 4,
-    })
+        })
 
 
 def product_list_api(request):
@@ -47,47 +53,57 @@ def product_list_api(request):
             'category': {
                 'id': product.category.id,
                 'name': product.category.name,
-            },
+                },
             'image': product.image.url,
             'restaurant': {
                 'id': product.id,
                 'name': product.name,
+                }
             }
-        }
         dumped_products.append(dumped_product)
     return JsonResponse(dumped_products, safe=False, json_dumps_params={
         'ensure_ascii': False,
         'indent': 4,
-    })
+        })
 
 
 @transaction.atomic()
 @api_view(['POST'])
 def register_order(request):
+    apikey = env.str('GEO_API_KEY')
+    place = None
     serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    if serializer.is_valid(raise_exception=True):
+        try:
+            lng, lat = fetch_coordinates(apikey=apikey, place=serializer.validated_data['address'])
+            place, is_created = Place.objects.get_or_create(
+                address=serializer.validated_data['address'],
+                defaults={'lat': lat, 'lng': lng})
+        except requests.exceptions.RequestException as e:
+            print(e)
 
-    order, is_created = Order.objects.update_or_create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
-    )
+        order, is_created = Order.objects.update_or_create(
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
+            address=serializer.validated_data['address'],
+            place=place
+            )
 
-    for product_item in serializer.validated_data.get('products'):
-        order_details, is_created = OrderDetails.objects.get_or_create(
-            product=product_item['product'],
-            order=order,
-            defaults={
-                'quantity': product_item['quantity'],
-                'product_price': product_item['product'].price * product_item['quantity']
-            })
-
-        if not is_created:
-            order_details.quantity = order_details.quantity + product_item['quantity']
-
-            order_details.product_price = order_details.product_price + product_item['product'].price * product_item[
-                'quantity']
-
-            order_details.save()
-    return Response(serializer.data, status.HTTP_201_CREATED)
+        for product_item in serializer.validated_data.get('products'):
+            order_details, is_created = OrderDetails.objects.get_or_create(
+                product=product_item['product'],
+                order=order,
+                defaults={
+                    'quantity': product_item['quantity'],
+                    'product_price': product_item['product'].price * product_item['quantity']
+                    })
+            if not is_created:
+                quantity = order_details.quantity + product_item['quantity']
+                product_price = order_details.product_price + product_item['product'].price * \
+                                product_item['quantity']
+                order_details.quantity = int(quantity)
+                order_details.product_price = product_price
+                order_details.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
