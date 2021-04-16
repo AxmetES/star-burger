@@ -25,19 +25,14 @@ class Restaurant(models.Model):
     name = models.CharField('название', max_length=50)
     address = models.CharField('адрес', max_length=100, blank=True)
     contact_phone = models.CharField('контактный телефон', max_length=50, blank=True)
-    place = models.ForeignKey('Place', on_delete=models.CASCADE, null=True, blank=True, verbose_name='место на карте')
+    place = models.ForeignKey('Place', on_delete=models.CASCADE, related_name='restaurants', null=True, blank=True,
+                              verbose_name='место на карте')
 
     def __str__(self):
         return self.name
 
     def get_coords(self):
         return (str(self.place.lat), str(self.place.lng))
-
-    def delete(self, *args, **kwargs):
-        place = Place.objects.filter(address=self.address)
-        if place:
-            place.delete()
-        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'ресторан'
@@ -142,12 +137,12 @@ class Order(models.Model):
         verbose_name_plural = 'заказы'
 
     def get_order_cost(self):
-        return Order.objects.filter(pk=self.id).aggregate(order_cost=Sum('details__product_price'))['order_cost']
+        return self.details.aggregate(order_cost=Sum('product_price'))['order_cost']
 
     def get_rest_rang(self):
         rest_range = []
         restaurants = Restaurant.objects.all()
-
+    
         for rest in restaurants:
             if self.place:
                 order_coords = self.place.get_coords()
@@ -161,12 +156,6 @@ class Order(models.Model):
 
         rang_of_restrs = map(' - '.join, rest_range)
         return rang_of_restrs
-
-    def delete(self, *args, **kwargs):
-        place = Place.objects.filter(address=self.address)
-        if place:
-            place.delete()
-        super(Order, self).delete(*args, **kwargs)
 
 
 class OrderDetails(models.Model):
