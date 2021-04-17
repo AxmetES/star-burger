@@ -163,7 +163,7 @@ class OrderDetails(models.Model):
                                 verbose_name='детали заказа')
     quantity = models.IntegerField('количество', validators=[MinValueValidator(1), MaxValueValidator(100)])
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='details', verbose_name='заказ')
-    product_price = models.DecimalField('сумма цен продукта', null=True, max_digits=8, decimal_places=2,
+    product_price = models.DecimalField('сумма цен продукта', max_digits=8, decimal_places=2,
                                         validators=[MinValueValidator(Decimal('0.01'))])
 
     def __str__(self):
