@@ -142,7 +142,7 @@ class Order(models.Model):
     def get_rest_rang(self):
         rest_range = []
         restaurants = Restaurant.objects.all()
-    
+
         for rest in restaurants:
             if self.place:
                 order_coords = self.place.get_coords()
@@ -159,8 +159,8 @@ class Order(models.Model):
 
 
 class OrderDetails(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='products',
-                                verbose_name='продукт')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_details',
+                                verbose_name='детали заказа')
     quantity = models.IntegerField('количество', validators=[MinValueValidator(1), MaxValueValidator(100)])
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='details', verbose_name='заказ')
     product_price = models.DecimalField('сумма цен продукта', null=True, max_digits=8, decimal_places=2,
